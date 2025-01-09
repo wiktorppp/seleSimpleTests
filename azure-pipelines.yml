@@ -1,0 +1,27 @@
+trigger:
+- main
+
+stages:
+- stage: Build
+  jobs:
+  - job: BuildJob
+    steps:
+    - task: UseNode@2
+      inputs:
+        versionSpec: '16.x'
+    - script: npm install
+    - script: npm run build
+
+- stage: Test
+  dependsOn: Build
+  jobs:
+  - job: TestJob
+    steps:
+    - script: npm test
+
+- stage: Deploy
+  dependsOn: Test
+  jobs:
+  - job: DeployJob
+    steps:
+    - script: echo "Deploying to production..."
