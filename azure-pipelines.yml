@@ -1,27 +1,79 @@
+# Trigger the pipeline on changes to the main branch
 trigger:
-- main
+  branches:
+    include:
+      - main
+
+# Define variables
+variables:
+  nodeVersion: '16.x'  # Node.js version
 
 stages:
-- stage: Build
-  jobs:
-  - job: BuildJob
-    steps:
-    - task: UseNode@2
-      inputs:
-        versionSpec: '16.x'
-    - script: npm install
-    - script: npm run build
+  # Build Stage
+  - stage: Build
+    displayName: Build Stage
+    jobs:
+      - job: BuildJob
+        displayName: Build Job
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: UseNode@2
+            displayName: 'Set Node.js Version'
+            inputs:
+              versionSpec: $(nodeVersion)
 
-- stage: Test
-  dependsOn: Build
-  jobs:
-  - job: TestJob
-    steps:
-    - script: npm test
+          - script: |
+              npm install
+              npm run build
+            displayName: 'Install Dependencies and Build'
 
-- stage: Deploy
-  dependsOn: Test
-  jobs:
-  - job: DeployJob
-    steps:
-    - script: echo "Deploying to production..."
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Build Artifacts'
+            inputs:
+              pathToPublish: 'dist' # Path to build output
+              artifactName: 'drop'
+
+  # Test Stage
+  - stage: Test
+    displayName: Test Stage
+    dependsOn: Build
+    jobs:
+      - job: TestJob
+        displayName: Test Job
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: UseNode@2
+            displayName: 'Set Node.js Version'
+            inputs:
+              versionSpec: $(nodeVersion)
+
+          - script: |
+              npm install
+              npm test
+            displayName: 'Run Tests'
+
+  # Deploy Stage
+  - stage: Deploy
+    displayName: Deploy Stage
+    dependsOn: Test
+    condition: succeeded()
+    jobs:
+      - deployment: DeployJob
+        displayName: Deploy to Production
+        environment: Production
+        pool:
+          vmImage: 'ubuntu-latest'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  displayName: 'Download Artifacts'
+
+                - script: echo "Deploying application..."
+                  displayName: 'Deploy Application'
+
+                - script: echo "Deployment complete!"
+                  displayName: 'Post-Deployment Tasks'
