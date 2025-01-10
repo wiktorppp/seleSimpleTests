@@ -44,10 +44,12 @@ stages:
         pool:
           vmImage: 'ubuntu-latest'
         steps:
-          - task: UseNode@2
-            displayName: 'Set Node.js Version'
-            inputs:
-              versionSpec: $(nodeVersion)
+          - script: |
+              curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+              sudo apt-get install -y nodejs
+              node -v
+              npm -v
+            displayName: 'Set up Node.js'
 
           - script: |
               npm install
