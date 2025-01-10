@@ -7,6 +7,7 @@ trigger:
 # Define variables
 variables:
   nodeVersion: '16.x'  # Node.js version
+  pythonVersion: '3.10'  # Python version
 
 stages:
   # Build Stage
@@ -46,17 +47,22 @@ stages:
         pool:
           vmImage: 'ubuntu-latest'
         steps:
-          - script: |
-              curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-              sudo apt-get install -y nodejs
-              node -v
-              npm -v
-            displayName: 'Set up Node.js'
+          # Install Python
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: $(pythonVersion)
+              addToPath: true
 
+          # Install dependencies
           - script: |
-              npm install
-              npm test
-            displayName: 'Run Tests'
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+            displayName: 'Install Python Dependencies'
+
+          # Run the test script
+          - script: |
+              python sele_testcase1.py
+            displayName: 'Run Selenium Test Script'
 
   # Deploy Stage
   - stage: Deploy
