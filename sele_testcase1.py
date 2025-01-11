@@ -4,7 +4,7 @@ from selenium.webdriver.common.keys import Keys
 import time
 
 # Initialize the WebDriver (ensure the correct path for your driver)
-driver = webdriver.Chrome()  # Or use webdriver.Firefox(), etc.
+driver = webdriver.Chrome()  # Or use webdriver.Firefox(), webdriver.Edge(), etc.
 
 try:
     # Open the website
