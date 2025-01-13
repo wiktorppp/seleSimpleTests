@@ -4,7 +4,7 @@ from selenium.webdriver.common.keys import Keys
 import time
 
 # Initialize the WebDriver (ensure the correct path for your driver)
-driver = webdriver.Chrome()  # Or use webdriver.Firefox(), webdriver.Edge(), etc.
+driver = webdriver.Chrome()
 
 try:
     # Open the website
@@ -19,16 +19,16 @@ try:
     print("Page title verification passed.")
 
     # Wait for the page to load
-    time.sleep(3)  # Consider using WebDriverWait for better handling
+    time.sleep(3)
 
-    # Interact with a menu item (e.g., click on the 'Selenium Training' link if present)
+    # Interact with a menu item (e.g., click on the 'SELENIUM TRAINING' link if present)
     try:
         selenium_training_link = driver.find_element(By.LINK_TEXT, "SELENIUM TRAINING")
         selenium_training_link.click()
         print("Successfully clicked on 'SELENIUM TRAINING'.")
 
         # Verify navigation to the correct page
-        time.sleep(3)  # Let the new page load
+        time.sleep(3) 
         assert "selenium-training" in driver.current_url, "Navigation to 'Selenium Training' failed."
         print("Navigation verification passed.")
     except Exception as e:
